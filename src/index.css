@@ -1,0 +1,147 @@
+@import 'tailwindcss';
+@config '../tailwind.config.js';
+
+/* ---------- Base typography & RTL ---------- */
+:root {
+  --app-font-scale: 1;
+  font-family: 'Tajawal', 'Cairo', 'Noto Naskh Arabic', 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.75;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-size: calc(16px * var(--app-font-scale));
+  overflow-x: hidden;
+  background:
+    radial-gradient(1200px 600px at 80% 10%, rgba(37, 52, 104, 0.28), transparent 60%),
+    radial-gradient(900px 500px at 15% 40%, rgba(26, 43, 92, 0.2), transparent 70%),
+    linear-gradient(160deg, #060b1f 0%, #091230 48%, #0a1538 100%);
+  color: #e5ebff;
+}
+
+body.theme-dimmer {
+  background:
+    radial-gradient(1200px 600px at 80% 10%, rgba(24, 33, 66, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 15% 40%, rgba(18, 30, 58, 0.14), transparent 70%),
+    linear-gradient(160deg, #050915 0%, #070e24 48%, #08102b 100%);
+}
+
+body[data-reading-mode='compact'] p,
+body[data-reading-mode='compact'] li,
+body[data-reading-mode='compact'] label,
+body[data-reading-mode='compact'] input,
+body[data-reading-mode='compact'] button,
+body[data-reading-mode='compact'] textarea,
+body[data-reading-mode='compact'] select {
+  line-height: 1.55;
+}
+
+body[data-reading-mode='comfortable'] p,
+body[data-reading-mode='comfortable'] li,
+body[data-reading-mode='comfortable'] label,
+body[data-reading-mode='comfortable'] input,
+body[data-reading-mode='comfortable'] button,
+body[data-reading-mode='comfortable'] textarea,
+body[data-reading-mode='comfortable'] select {
+  line-height: 1.8;
+}
+
+body.animations-disabled *,
+body.animations-disabled *::before,
+body.animations-disabled *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* ---------- Focus & interactive ---------- */
+a,
+button,
+input,
+select,
+textarea {
+  transition: outline-color 120ms ease, box-shadow 120ms ease;
+}
+
+:focus-visible {
+  outline: 3px solid #d7a93e;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Selection ---------- */
+::selection {
+  background: rgba(233, 195, 91, 0.25);
+  color: #fff4cc;
+}
+
+/* ---------- Scrollbar (webkit) ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ---------- ClockWidget animation ---------- */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+p,
+li,
+label,
+input,
+button,
+textarea,
+select {
+  line-height: 1.7;
+}
