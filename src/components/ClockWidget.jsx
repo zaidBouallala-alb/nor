@@ -6,15 +6,42 @@ const LOCATION_CACHE_KEY = 'clock-widget-location-v1'
 const LOCATION_MAX_AGE = 1000 * 60 * 60 * 3
 const AR_LOCALE_LATN = 'ar-EG-u-nu-latn'
 const AR_SA_HIJRI_LATN = 'ar-SA-u-ca-islamic-umalqura-nu-latn'
+const AR_MA_HIJRI_LATN = 'ar-MA-u-ca-islamic-nu-latn'
 
-/* ─── Hijri date via Intl (islamic-umalqura calendar) ─── */
-const getHijriParts = (date) => {
+const isMoroccoLocation = ({ country = '', timezone = '' } = {}) => {
+  const normalizedCountry = String(country).toLowerCase()
+  const normalizedTz = String(timezone).toLowerCase()
+
+  return (
+    normalizedCountry.includes('المغرب')
+    || normalizedCountry.includes('morocco')
+    || normalizedCountry.includes('maroc')
+    || normalizedTz.includes('casablanca')
+  )
+}
+
+const getBrowserTimeZone = () => {
   try {
-    const full = new Intl.DateTimeFormat(AR_SA_HIJRI_LATN, {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? ''
+  } catch {
+    return ''
+  }
+}
+
+/* ─── Hijri date via Intl (country-aware) ─── */
+const getHijriParts = (date, options = {}) => {
+  const morocco = isMoroccoLocation(options)
+  const locale = morocco ? AR_MA_HIJRI_LATN : AR_SA_HIJRI_LATN
+  const sourceDate = morocco
+    ? new Date(date.getTime() - 24 * 60 * 60 * 1000)
+    : date
+
+  try {
+    const full = new Intl.DateTimeFormat(locale, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-    }).format(date)
+    }).format(sourceDate)
     return full
   } catch {
     return ''
@@ -154,8 +181,14 @@ const ClockWidget = () => {
     [now.toDateString()],
   )
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const hijriDate = useMemo(() => getHijriParts(now), [now.toDateString()])
+  const dayKey = now.toDateString()
+  const countryKey = location?.country ?? ''
+  const timezoneKey = location?.tz ?? getBrowserTimeZone()
+
+  const hijriDate = useMemo(
+    () => getHijriParts(new Date(dayKey), { country: countryKey, timezone: timezoneKey }),
+    [dayKey, countryKey, timezoneKey],
+  )
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const greeting = useMemo(() => getGreeting(now.getHours()), [Math.floor(seconds / 3600)])
 
