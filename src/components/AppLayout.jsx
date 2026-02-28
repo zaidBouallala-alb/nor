@@ -111,7 +111,7 @@ const AppLayout = () => {
                 type="button"
                 onClick={closeDrawer}
                 aria-label="إغلاق القائمة"
-                className="rounded-xl p-2 text-textMuted transition hover:bg-surface-soft hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                className="rounded-xl p-2 text-textMuted transition hover:bg-surface-soft hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
