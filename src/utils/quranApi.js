@@ -1,6 +1,15 @@
 import axios from 'axios'
 import { quranOfflineSurahs } from '../data/quranOfflineSample'
-import { surahs as bundledSurahs } from '../data/quranSample'
+
+/* bundledSurahs is loaded lazily via dynamic import() below —
+   this keeps the 1.6 MB file out of the initial bundle. */
+let _bundledSurahsCache = null
+const loadBundledSurahs = async () => {
+  if (_bundledSurahsCache) return _bundledSurahsCache
+  const mod = await import('../data/quranSample')
+  _bundledSurahsCache = mod.surahs
+  return _bundledSurahsCache
+}
 
 /**
  * quranApi.js – Quran data layer
@@ -118,7 +127,7 @@ export const fetchSurahByNumber = async (number) => {
     if (hasRealText(cached)) return cached
 
     /* 3. Bundled full Quran from quranSample.js */
-    const bundled = getBundledSurah(Number(number))
+    const bundled = await getBundledSurah(Number(number))
     if (bundled) return bundled
 
     /* 4. Nothing available at all */
@@ -188,14 +197,19 @@ export const downloadAllSurahs = async (onProgress, opts = {}) => {
 
 /* ── Bundled surah lookup (full text from quranSample.js) ── */
 
-const getBundledSurah = (number) => {
-  const s = bundledSurahs.find((item) => item.number === number)
-  if (!s?.ayahs?.length) return null
-  return {
-    number: s.number,
-    nameArabic: s.nameArabic,
-    revelationPlace: s.revelationPlace,
-    ayahs: s.ayahs,
+const getBundledSurah = async (number) => {
+  try {
+    const bundledSurahs = await loadBundledSurahs()
+    const s = bundledSurahs.find((item) => item.number === number)
+    if (!s?.ayahs?.length) return null
+    return {
+      number: s.number,
+      nameArabic: s.nameArabic,
+      revelationPlace: s.revelationPlace,
+      ayahs: s.ayahs,
+    }
+  } catch {
+    return null
   }
 }
 

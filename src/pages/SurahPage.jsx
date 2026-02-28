@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import AudioPlayer from '../components/AudioPlayer'
 import AyahRow from '../components/AyahRow'
 import AppBadge from '../components/AppBadge'
 import AppButton from '../components/AppButton'
 import AppCard from '../components/AppCard'
+import useAudioPlayer from '../hooks/useAudioPlayer'
 import useLastRead from '../hooks/useLastRead'
 import { fetchSurahByNumber } from '../utils/quranApi'
 
@@ -44,6 +46,16 @@ const SurahPage = () => {
   // Last-read bookmark
   const { lastReadAyah, saveLastRead } = useLastRead(surahNumber)
   const ayahRefs = useRef({})
+
+  // Audio player
+  const audioPlayer = useAudioPlayer(surahNumber)
+
+  // Auto-scroll to currently playing ayah
+  useEffect(() => {
+    if (audioPlayer.currentAyah && ayahRefs.current[audioPlayer.currentAyah]) {
+      ayahRefs.current[audioPlayer.currentAyah].scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [audioPlayer.currentAyah])
 
   // ── Fetch surah ────────────────────────────────────────────
   useEffect(() => {
@@ -137,7 +149,7 @@ const SurahPage = () => {
       aria-pressed={active}
       className={[
         'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
         active
           ? 'bg-gold-500 text-background shadow-sm'
           : 'text-textMuted hover:bg-white/5 hover:text-slate-200',
@@ -340,8 +352,10 @@ const SurahPage = () => {
               ref={(el) => { ayahRefs.current[ayah.number] = el }}
               ayah={ayah}
               isLastRead={ayah.number === lastReadAyah}
+              isPlaying={ayah.number === audioPlayer.currentAyah}
               nightMode={nightMode}
               onSelect={handleAyahSelect}
+              onPlay={audioPlayer.playAyah}
             />
           ))}
         </p>
@@ -374,6 +388,9 @@ const SurahPage = () => {
           </Link>
         ) : <span />}
       </div>
+
+      {/* ── Audio Player ───────────────────────────────────── */}
+      <AudioPlayer player={audioPlayer} />
     </section>
   )
 }

@@ -130,7 +130,7 @@ const QuranPage = () => {
           onClick={handleDownloadAll}
           className={[
             'inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
             downloading
               ? 'bg-rose-500/20 text-rose-300 hover:bg-rose-500/30'
               : cachedCount === 114
@@ -202,7 +202,7 @@ const QuranPage = () => {
           <Link
             key={surah.number}
             to={`/surah/${surah.number}`}
-            className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-surface-glass p-4 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-gold-500/40 hover:shadow-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+            className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-surface-glass p-4 shadow-soft backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-gold-500/40 hover:shadow-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             aria-label={`فتح سورة ${surah.nameArabic}`}
           >
             {/* Number ornament */}
