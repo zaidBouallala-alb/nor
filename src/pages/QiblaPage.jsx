@@ -168,6 +168,44 @@ const QiblaPage = () => {
   const [compassSupported, setCompassSupported] = useState(false)
   const watchRef = useRef(null)
 
+  const getHeadingFromEvent = useCallback((event) => {
+    if (typeof event?.webkitCompassHeading === 'number') {
+      return event.webkitCompassHeading
+    }
+
+    if (typeof event?.alpha !== 'number') {
+      return null
+    }
+
+    const screenAngle =
+      window.screen?.orientation?.angle
+      ?? (typeof window.orientation === 'number' ? window.orientation : 0)
+
+    let heading = 360 - event.alpha
+    heading = (heading + screenAngle) % 360
+    if (heading < 0) heading += 360
+
+    return heading
+  }, [])
+
+  const orientationHandler = useCallback((event) => {
+    const heading = getHeadingFromEvent(event)
+    if (heading === null) return
+
+    setDeviceHeading(heading)
+    setCompassSupported(true)
+  }, [getHeadingFromEvent])
+
+  const attachOrientationListeners = useCallback(() => {
+    window.addEventListener('deviceorientationabsolute', orientationHandler, true)
+    window.addEventListener('deviceorientation', orientationHandler, true)
+  }, [orientationHandler])
+
+  const detachOrientationListeners = useCallback(() => {
+    window.removeEventListener('deviceorientationabsolute', orientationHandler, true)
+    window.removeEventListener('deviceorientation', orientationHandler, true)
+  }, [orientationHandler])
+
   const latNum = Number(latitude)
   const lonNum = Number(longitude)
   const hasInvalidInput = Number.isNaN(latNum) || Number.isNaN(lonNum)
@@ -184,48 +222,36 @@ const QiblaPage = () => {
 
   /* ── Device compass (magnetometer) ── */
   useEffect(() => {
-    const handler = (e) => {
-      const heading = e.webkitCompassHeading ?? (e.alpha !== null ? (360 - e.alpha) % 360 : null)
-      if (heading !== null) {
-        setDeviceHeading(heading)
-        setCompassSupported(true)
-      }
-    }
-
     if (typeof DeviceOrientationEvent !== 'undefined') {
       // iOS 13+ requires permission
       if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         // will be requested on button tap
       } else {
-        window.addEventListener('deviceorientation', handler, true)
+        attachOrientationListeners()
       }
+    } else {
+      setStatusText('جهازك لا يدعم البوصلة الرقمية. يمكنك الاعتماد على زاوية القبلة بالأرقام.')
     }
 
-    return () => window.removeEventListener('deviceorientation', handler, true)
-  }, [])
+    return () => detachOrientationListeners()
+  }, [attachOrientationListeners, detachOrientationListeners])
 
   const requestCompass = useCallback(async () => {
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       try {
+        setStatusText('جارٍ طلب إذن البوصلة...')
         const perm = await DeviceOrientationEvent.requestPermission()
         if (perm === 'granted') {
-          window.addEventListener(
-            'deviceorientation',
-            (e) => {
-              const heading = e.webkitCompassHeading ?? (e.alpha !== null ? (360 - e.alpha) % 360 : null)
-              if (heading !== null) {
-                setDeviceHeading(heading)
-                setCompassSupported(true)
-              }
-            },
-            true,
-          )
+          attachOrientationListeners()
+          setStatusText('تم تفعيل البوصلة الرقمية بنجاح.')
+        } else {
+          setStatusText('تم رفض إذن البوصلة. فعّل الإذن من إعدادات المتصفح.')
         }
       } catch {
-        /* ignored */
+        setStatusText('تعذر تفعيل البوصلة. تأكد من السماح بإذن الحركة والاتجاه.')
       }
     }
-  }, [])
+  }, [attachOrientationListeners])
 
   /* ── Geolocation ── */
   const handleUseMyLocation = useCallback(async () => {
