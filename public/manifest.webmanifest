@@ -1,14 +1,21 @@
 {
   "name": "نُور - رفيقك الإسلامي اليومي",
   "short_name": "نُور",
-  "description": "تطبيق إسلامي يومي: مواقيت الصلاة، القبلة، القرآن، الأذكار، التسبيح",
+  "description": "تطبيق إسلامي شامل: مواقيت الصلاة الدقيقة، القرآن الكريم كاملًا، أذكار الصباح والمساء، اتجاه القبلة، وعدّاد التسبيح.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#060B1F",
   "theme_color": "#0A112C",
+  "categories": [
+    "lifestyle",
+    "education",
+    "utilities"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/logo.svg",
