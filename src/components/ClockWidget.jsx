@@ -281,7 +281,7 @@ const ClockWidget = () => {
           className="
             group flex items-center gap-2.5 rounded-xl px-3 py-2
             transition-all hover:bg-surface-soft/60
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500
           "
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-soft/80 ring-1 ring-border/50 transition-colors group-hover:bg-gold-500/15 group-hover:ring-gold-500/30">
@@ -343,7 +343,7 @@ const ClockWidget = () => {
           className="
             group flex items-center gap-1.5 rounded-lg px-2 py-1.5
             transition hover:bg-surface-soft/50
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500
           "
         >
           {locLoading ? (

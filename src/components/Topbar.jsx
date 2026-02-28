@@ -18,7 +18,7 @@ const Topbar = ({ onMenuToggle }) => {
             type="button"
             onClick={onMenuToggle}
             aria-label="فتح القائمة"
-            className="inline-flex items-center justify-center rounded-xl p-2 text-textMuted transition-colors hover:bg-surface-soft hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 lg:hidden"
+            className="inline-flex items-center justify-center rounded-xl p-2 text-textMuted transition-colors hover:bg-surface-soft hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 lg:hidden"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -28,7 +28,7 @@ const Topbar = ({ onMenuToggle }) => {
           {/* App brand */}
           <NavLink
             to="/"
-            className="flex items-center gap-2 text-lg font-bold leading-none text-gold-300 transition-colors hover:text-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex items-center gap-2 text-lg font-bold leading-none text-gold-300 transition-colors hover:text-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <img src="/logo.svg" alt="" className="h-7 w-7" />
             <span>نُور</span>

@@ -1,10 +1,10 @@
 const variantClassMap = {
   primary:
-    'bg-gold-500 text-background hover:bg-gold-400 border border-gold-400/70 shadow-soft focus-visible:ring-gold-400',
+    'bg-gold-500 text-background hover:bg-gold-400 border border-gold-400/70 shadow-soft focus-visible:ring-emerald-500',
   secondary:
-    'bg-surface-soft text-slate-100 hover:bg-surface border border-border focus-visible:ring-gold-400',
+    'bg-surface-soft text-slate-100 hover:bg-surface border border-border focus-visible:ring-emerald-500',
   ghost:
-    'bg-transparent text-textMuted hover:text-gold-300 hover:bg-surface/60 border border-transparent focus-visible:ring-gold-400',
+    'bg-transparent text-textMuted hover:text-gold-300 hover:bg-surface/60 border border-transparent focus-visible:ring-emerald-500',
 }
 
 const AppButton = ({

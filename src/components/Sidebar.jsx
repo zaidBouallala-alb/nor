@@ -103,7 +103,7 @@ const Sidebar = ({ onNavigate, collapsed = false, onToggleCollapse }) => {
                 'group relative flex items-center rounded-xl text-sm font-medium',
                 'transition-all duration-200 ease-out',
                 // Focus ring
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 // Sizing: collapsed = centered icon, expanded = icon + label
                 collapsed
                   ? 'justify-center px-0 py-2.5'
@@ -155,7 +155,7 @@ const Sidebar = ({ onNavigate, collapsed = false, onToggleCollapse }) => {
           className={[
             'mt-4 flex items-center rounded-xl p-2 text-textMuted transition-colors duration-200',
             'hover:bg-surface-soft hover:text-slate-100',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
             collapsed ? 'justify-center' : 'justify-end gap-2',
           ].join(' ')}
         >
