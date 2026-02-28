@@ -1,4 +1,5 @@
 import axios from 'axios'
+import ct from 'countries-and-timezones'
 import { getPrayerTimesFallback } from '../data/prayerTimesSample'
 
 const PRAYER_ORDER = [
@@ -9,6 +10,31 @@ const PRAYER_ORDER = [
   'Maghrib',
   'Isha',
 ]
+
+/**
+ * Intelligently determines fallback city using the browser's 
+ * Intl.DateTimeFormat().resolvedOptions().timeZone
+ * If it points to an exact region (e.g. Africa/Casablanca), we map it instantly. 
+ */
+export const getSmartFallbackCity = () => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!tz) return 'Cairo';
+
+    const timezoneData = ct.getTimezone(tz);
+
+    // In timezone 'Africa/Casablanca', mapping splits it:
+    if (tz.includes('/')) {
+      const parts = tz.split('/');
+      // Usually the second part of a standardized string represents the City. 
+      // Replace underscores with spaces (e.g. New_York -> New York)
+      return parts[1].replace(/_/g, ' ');
+    }
+  } catch {
+    return 'Cairo';
+  }
+  return 'Cairo';
+}
 
 const cleanTimeValue = (value) => value.replace(/\s*\([^)]*\)/g, '').trim()
 
@@ -199,7 +225,7 @@ export const fetchPrayerTimesBySmartPlace = async (placeQuery) => {
   const normalized = normalizePlaceText(placeQuery)
 
   if (!normalized) {
-    return getPrayerTimesFallback('cairo')
+    return getPrayerTimesFallback(getSmartFallbackCity())
   }
 
   const cityResult = await tryCityMethod(normalized)
