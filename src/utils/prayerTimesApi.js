@@ -131,3 +131,82 @@ export const geocodePlace = async (placeQuery) => {
     label: firstResult.display_name,
   }
 }
+
+const normalizePlaceText = (value) => (
+  value
+    .replace(/\u060C/g, ',')
+    .replace(/\s+/g, ' ')
+    .trim()
+)
+
+const getCityCountryCandidates = (placeQuery) => {
+  const normalized = normalizePlaceText(placeQuery)
+  const parts = normalized
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (parts.length >= 2) {
+    return [
+      { city: parts[0], country: parts[parts.length - 1] },
+      { city: parts[0], country: '' },
+    ]
+  }
+
+  return [{ city: normalized, country: '' }]
+}
+
+const tryCityMethod = async (placeQuery) => {
+  const candidates = getCityCountryCandidates(placeQuery)
+
+  for (const candidate of candidates) {
+    try {
+      const response = await axios.get('https://api.aladhan.com/v1/timingsByCity', {
+        params: {
+          city: candidate.city,
+          ...(candidate.country ? { country: candidate.country } : {}),
+          method: 5,
+        },
+      })
+
+      return mapAladhanData(response.data, {
+        city: candidate.city,
+        country: candidate.country || 'Unknown',
+        source: 'AlAdhan API (Smart: city match)',
+      })
+    } catch {
+      // continue to next candidate
+    }
+  }
+
+  return null
+}
+
+const tryGeocodeMethod = async (placeQuery) => {
+  try {
+    const location = await geocodePlace(placeQuery)
+    return fetchPrayerTimesByCoordinates({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      placeLabel: location.label,
+    })
+  } catch {
+    return null
+  }
+}
+
+export const fetchPrayerTimesBySmartPlace = async (placeQuery) => {
+  const normalized = normalizePlaceText(placeQuery)
+
+  if (!normalized) {
+    return getPrayerTimesFallback('cairo')
+  }
+
+  const cityResult = await tryCityMethod(normalized)
+  if (cityResult) return cityResult
+
+  const geocodeResult = await tryGeocodeMethod(normalized)
+  if (geocodeResult) return geocodeResult
+
+  return getPrayerTimesFallback(normalized)
+}

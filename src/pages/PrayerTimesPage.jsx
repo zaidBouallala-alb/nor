@@ -8,7 +8,7 @@ import { getPrayerTimesFallback } from '../data/prayerTimesSample'
 import {
   fetchPrayerTimesByCity,
   fetchPrayerTimesByCoordinates,
-  geocodePlace,
+  fetchPrayerTimesBySmartPlace,
 } from '../utils/prayerTimesApi'
 import useNextPrayerCountdown from '../utils/useNextPrayerCountdown'
 
@@ -44,12 +44,7 @@ const PrayerTimesPage = () => {
       }
 
       if (params.mode === 'place' && params.place) {
-        const location = await geocodePlace(params.place)
-        return fetchPrayerTimesByCoordinates({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          placeLabel: location.label,
-        })
+        return fetchPrayerTimesBySmartPlace(params.place)
       }
 
       if (params.mode === 'coordinates') {
