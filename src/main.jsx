@@ -19,3 +19,11 @@ createRoot(document.getElementById('root')).render(
     </PreferencesProvider>
   </StrictMode>,
 )
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // ignore registration failures
+    })
+  })
+}
