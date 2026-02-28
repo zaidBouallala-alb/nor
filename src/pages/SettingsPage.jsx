@@ -17,7 +17,7 @@ const ToggleGroup = ({ label, value, options, onChange }) => {
             onClick={() => onChange(option.value)}
             className={[
               'rounded-xl border px-3 py-2 text-sm font-medium transition',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               value === option.value
                 ? 'border-gold-500/60 bg-gold-500/15 text-gold-300'
                 : 'border-border/80 bg-surface-soft text-textMuted hover:bg-surface hover:text-slate-100',
@@ -82,7 +82,7 @@ const SettingsPage = () => {
             onClick={() => setPreference('enableAnimations', !preferences.enableAnimations)}
             className={[
               'inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               preferences.enableAnimations
                 ? 'border-gold-500/60 bg-gold-500/15 text-gold-300'
                 : 'border-border/80 bg-surface-soft text-textMuted hover:bg-surface hover:text-slate-100',

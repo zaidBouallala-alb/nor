@@ -77,11 +77,10 @@ const DhikrEntry = ({ entry, done, onCount }) => {
 
   return (
     <div
-      className={`rounded-xl border p-4 transition-all ${
-        isDone
-          ? 'border-emerald-500/30 bg-emerald-500/5'
-          : 'border-border/50 bg-surface-soft/50'
-      }`}
+      className={`rounded-xl border p-4 transition-all ${isDone
+        ? 'border-emerald-500/30 bg-emerald-500/5'
+        : 'border-border/50 bg-surface-soft/50'
+        }`}
     >
       {/* text */}
       <p className="font-['Amiri',serif] text-lg leading-[2] text-slate-100 sm:text-xl">
@@ -106,11 +105,10 @@ const DhikrEntry = ({ entry, done, onCount }) => {
           type="button"
           onClick={onCount}
           disabled={isDone}
-          className={`flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition active:scale-95 ${
-            isDone
-              ? 'cursor-default bg-emerald-500/15 text-emerald-400'
-              : 'bg-gold-500/15 text-gold-300 hover:bg-gold-500/25 border border-gold-500/30'
-          }`}
+          className={`flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition active:scale-95 ${isDone
+            ? 'cursor-default bg-emerald-500/15 text-emerald-400'
+            : 'bg-gold-500/15 text-gold-300 hover:bg-gold-500/25 border border-gold-500/30'
+            }`}
         >
           {isDone ? (
             <>
@@ -128,9 +126,8 @@ const DhikrEntry = ({ entry, done, onCount }) => {
         <div className="flex flex-1 items-center gap-2">
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-soft">
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                isDone ? 'bg-emerald-500' : 'bg-gradient-to-l from-gold-400 to-gold-600'
-              }`}
+              className={`h-full rounded-full transition-all duration-300 ${isDone ? 'bg-emerald-500' : 'bg-gradient-to-l from-gold-400 to-gold-600'
+                }`}
               style={{ width: `${Math.min(100, (done / entry.repeat) * 100)}%` }}
             />
           </div>
@@ -281,11 +278,10 @@ const AthkarPage = () => {
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
-            className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
-              filter === f.key
-                ? 'bg-gold-500 text-background'
-                : 'bg-surface-soft text-textMuted hover:bg-surface hover:text-slate-100'
-            }`}
+            className={`rounded-xl px-3 py-2 text-xs font-medium transition ${filter === f.key
+              ? 'bg-gold-500 text-background'
+              : 'bg-surface-soft text-textMuted hover:bg-surface hover:text-slate-100'
+              }`}
           >
             {f.label}
           </button>
@@ -293,7 +289,7 @@ const AthkarPage = () => {
       </div>
 
       {/* ── Category Accordion Grid ── */}
-      <div className="columns-1 gap-4 lg:columns-2">
+      <div className="columns-1 gap-4 lg:columns-2" aria-live="polite">
         {displayed.map((cat) => {
           const isOpen = openId === cat.id
           const cp = catProgress(cat)
@@ -305,7 +301,12 @@ const AthkarPage = () => {
               <button
                 type="button"
                 onClick={() => setOpenId((prev) => (prev === cat.id ? null : cat.id))}
-                className="flex w-full items-center gap-3 p-4 text-start transition hover:bg-surface-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape' && isOpen) {
+                    setOpenId(null);
+                  }
+                }}
+                className="flex w-full items-center gap-3 p-4 text-start transition hover:bg-surface-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 aria-expanded={isOpen}
                 aria-controls={panelId}
               >
@@ -328,9 +329,8 @@ const AthkarPage = () => {
                   {/* mini progress bar */}
                   <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-soft">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        cp.pct >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-l from-gold-400 to-gold-600'
-                      }`}
+                      className={`h-full rounded-full transition-all duration-500 ${cp.pct >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-l from-gold-400 to-gold-600'
+                        }`}
                       style={{ width: `${cp.pct}%` }}
                     />
                   </div>
@@ -353,9 +353,8 @@ const AthkarPage = () => {
                 id={panelId}
                 role="region"
                 aria-label={`محتوى ${cat.title}`}
-                className={`overflow-hidden transition-all duration-300 ${
-                  isOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'
-                }`}
+                className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
               >
                 <div className="space-y-3 border-t border-border/50 p-4">
                   {/* reset category */}

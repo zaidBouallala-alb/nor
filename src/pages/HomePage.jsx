@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 import AppBadge from '../components/AppBadge'
 import AppCard from '../components/AppCard'
 import AppSectionTitle from '../components/AppSectionTitle'
-import { fetchPrayerTimesByCity } from '../utils/prayerTimesApi'
+import { fetchPrayerTimesBySmartPlace, fetchPrayerTimesByCoordinates, getSmartFallbackCity } from '../utils/prayerTimesApi'
 import { getPrayerTimesFallback } from '../data/prayerTimesSample'
-import useNextPrayerCountdown from '../utils/useNextPrayerCountdown'
+import useNextPrayerCountdown from '../hooks/useNextPrayerCountdown'
 
 /* ─── prayer name map ─── */
 const prayerNameAr = {
@@ -156,16 +156,54 @@ const HomePage = () => {
   const dailyAyah = useMemo(() => pickByDay(dailyAyahs), [])
   const dailyTip = useMemo(() => pickByDay(dailyTips), [])
 
+  const defaultCity = useMemo(() => getSmartFallbackCity(), [])
+
+  const [prayerParams, setPrayerParams] = useState({
+    mode: 'auto',
+    city: defaultCity,
+    country: '',
+  })
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setPrayerParams({ mode: 'city', city: defaultCity, country: '' })
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setPrayerParams({
+          mode: 'coordinates',
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          placeLabel: 'موقعي الحالي',
+        })
+      },
+      () => {
+        setPrayerParams({ mode: 'city', city: defaultCity, country: '' })
+      },
+      { enableHighAccuracy: true, timeout: 5000 },
+    )
+  }, [defaultCity])
+
   /* ── prayer times mini-widget ── */
   const { data: prayerData } = useQuery({
-    queryKey: ['prayer-times-home', 'Cairo', 'Egypt'],
-    queryFn: () => fetchPrayerTimesByCity({ city: 'Cairo', country: 'Egypt' }),
+    queryKey: ['prayer-times-home', prayerParams],
+    queryFn: async () => {
+      if (prayerParams.mode === 'coordinates') {
+        return fetchPrayerTimesByCoordinates({
+          latitude: prayerParams.latitude,
+          longitude: prayerParams.longitude,
+          placeLabel: prayerParams.placeLabel,
+        })
+      }
+      return fetchPrayerTimesBySmartPlace(prayerParams.city)
+    },
     staleTime: 1000 * 60 * 30,
   })
 
   const prayers = useMemo(
-    () => prayerData?.prayers ?? getPrayerTimesFallback('cairo').prayers,
-    [prayerData],
+    () => prayerData?.prayers ?? getPrayerTimesFallback(defaultCity).prayers,
+    [prayerData, defaultCity],
   )
   const countdown = useNextPrayerCountdown(prayers)
 
@@ -222,11 +260,10 @@ const HomePage = () => {
             {prayers.map((p) => (
               <span
                 key={p.name}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-                  p.name === countdown.nextPrayer
-                    ? 'bg-gold-500/20 text-gold-300 ring-1 ring-gold-500/40'
-                    : 'bg-surface-soft text-textMuted'
-                }`}
+                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${p.name === countdown.nextPrayer
+                  ? 'bg-gold-500/20 text-gold-300 ring-1 ring-gold-500/40'
+                  : 'bg-surface-soft text-textMuted'
+                  }`}
               >
                 {prayerNameAr[p.name]} {p.time}
               </span>
@@ -352,7 +389,12 @@ const HomePage = () => {
       {/* ── Row 4: Full Prayer Times Bar ── */}
       <AppCard className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-slate-100">مواقيت اليوم</h2>
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">مواقيت اليوم</h2>
+            <p className="mt-0.5 text-[11px] text-textMuted" aria-label="موقع وتاريخ الأذان">
+              {prayerData?.city || defaultCity} • {prayerData?.date || new Date().toLocaleDateString()}
+            </p>
+          </div>
           <Link
             to="/prayer-times"
             className="text-xs text-gold-400 hover:text-gold-300 transition"
@@ -364,11 +406,10 @@ const HomePage = () => {
           {prayers.map((p) => (
             <div
               key={p.name}
-              className={`rounded-xl p-3 text-center transition ${
-                p.name === countdown.nextPrayer
-                  ? 'bg-gold-500/15 ring-1 ring-gold-500/30'
-                  : 'bg-surface-soft'
-              }`}
+              className={`rounded-xl p-3 text-center transition ${p.name === countdown.nextPrayer
+                ? 'bg-gold-500/15 ring-1 ring-gold-500/30'
+                : 'bg-surface-soft'
+                }`}
             >
               <span className={`mx-auto flex h-8 w-8 items-center justify-center ${p.name === countdown.nextPrayer ? 'text-gold-300' : 'text-gold-500/60'}`}>
                 {prayerIcons[p.name]}
