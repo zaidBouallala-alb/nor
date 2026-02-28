@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import ClockWidget from './ClockWidget'
+import InstallAppButton from './InstallAppButton'
 
 /**
  * Top application bar.
@@ -34,10 +35,12 @@ const Topbar = ({ onMenuToggle }) => {
           </NavLink>
         </div>
 
-        {/* Badge — large screens */}
-        <span className="hidden shrink-0 rounded-full border border-gold-500/35 bg-gold-500/10 px-3 py-1 text-xs font-semibold text-gold-300 sm:inline-flex">
-          رفيقك الإسلامي اليومي
-        </span>
+        <div className="flex items-center gap-2">
+          <InstallAppButton />
+          <span className="hidden shrink-0 rounded-full border border-gold-500/35 bg-gold-500/10 px-3 py-1 text-xs font-semibold text-gold-300 sm:inline-flex">
+            رفيقك الإسلامي اليومي
+          </span>
+        </div>
       </div>
 
       {/* ── Row 2: Smart Status Bar — always visible ── */}
