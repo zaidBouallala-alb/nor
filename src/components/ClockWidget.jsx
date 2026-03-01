@@ -340,6 +340,7 @@ const ClockWidget = () => {
         <button
           type="button"
           onClick={detectLocation}
+          aria-label="تحديث الموقع"
           className="
             group flex items-center gap-1.5 rounded-lg px-2 py-1.5
             transition hover:bg-surface-soft/50
