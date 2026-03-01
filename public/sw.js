@@ -1,5 +1,5 @@
-const CACHE_NAME = 'noor-cache-v2'
-const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/logo.svg']
+const CACHE_NAME = 'noor-cache-v3'
+const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/logo.svg', '/icons/icon-192.png', '/icons/icon-512.png']
 
 /* ── Install: pre-cache app shell ─────────────────────────── */
 self.addEventListener('install', (event) => {
