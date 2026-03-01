@@ -7,6 +7,8 @@ import AppSectionTitle from '../components/AppSectionTitle'
 import { fetchPrayerTimesBySmartPlace, fetchPrayerTimesByCoordinates, getSmartFallbackCity } from '../utils/prayerTimesApi'
 import { getPrayerTimesFallback } from '../data/prayerTimesSample'
 import useNextPrayerCountdown from '../hooks/useNextPrayerCountdown'
+import { useLocation } from '../context/LocationContext'
+import useDocTitle from '../hooks/useDocTitle'
 
 /* ─── prayer name map ─── */
 const prayerNameAr = {
@@ -153,37 +155,28 @@ const pickByDay = (arr) => {
    HomePage Component
    ════════════════════════════════════════════ */
 const HomePage = () => {
+  useDocTitle(null) // default: نُور — رفيقك الإسلامي اليومي
   const dailyAyah = useMemo(() => pickByDay(dailyAyahs), [])
   const dailyTip = useMemo(() => pickByDay(dailyTips), [])
 
   const defaultCity = useMemo(() => getSmartFallbackCity(), [])
+  const { location: globalLocation } = useLocation()
 
-  const [prayerParams, setPrayerParams] = useState({
-    mode: 'auto',
-    city: defaultCity,
-    country: '',
-  })
+  /* ── Build prayer params from global location ── */
+  const prayerParams = useMemo(() => {
+    if (!globalLocation) return { mode: 'city', city: defaultCity }
 
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setPrayerParams({ mode: 'city', city: defaultCity, country: '' })
-      return
+    if (globalLocation.mode === 'gps') {
+      return {
+        mode: 'coordinates',
+        latitude: globalLocation.latitude,
+        longitude: globalLocation.longitude,
+        placeLabel: globalLocation.label,
+      }
     }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setPrayerParams({
-          mode: 'coordinates',
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          placeLabel: 'موقعي الحالي',
-        })
-      },
-      () => {
-        setPrayerParams({ mode: 'city', city: defaultCity, country: '' })
-      },
-      { enableHighAccuracy: true, timeout: 5000 },
-    )
-  }, [defaultCity])
+
+    return { mode: 'city', city: globalLocation.city || defaultCity }
+  }, [globalLocation, defaultCity])
 
   /* ── prayer times mini-widget ── */
   const { data: prayerData } = useQuery({
@@ -253,10 +246,30 @@ const HomePage = () => {
                 بعد <span className="font-semibold text-slate-100">{countdown.remaining}</span>
               </p>
             </div>
+            {/* Progress percentage */}
+            <span className="text-xs font-bold tabular-nums text-gold-400/80" dir="ltr">
+              {Math.round(countdown.progress * 100)}%
+            </span>
+          </div>
+
+          {/* ── Progress bar ── */}
+          <div className="relative mt-3 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+            <div
+              className="absolute inset-y-0 start-0 rounded-full bg-gradient-to-l from-gold-400 via-gold-500 to-gold-600 transition-all duration-700 ease-out"
+              style={{ width: `${Math.max(2, countdown.progress * 100)}%` }}
+            >
+              {/* Pulse dot at leading edge */}
+              <span className="absolute inset-y-0 end-0 flex items-center">
+                <span className="relative flex h-3 w-3 -translate-x-0.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-400/50" />
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-gold-300 shadow-[0_0_8px_rgba(215,169,62,0.6)]" />
+                </span>
+              </span>
+            </div>
           </div>
 
           {/* Mini prayer bar */}
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {prayers.map((p) => (
               <span
                 key={p.name}
