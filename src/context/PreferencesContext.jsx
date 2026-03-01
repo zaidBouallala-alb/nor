@@ -11,8 +11,8 @@ const defaultPreferences = {
 
 const PreferencesContext = createContext({
   preferences: defaultPreferences,
-  setPreference: () => {},
-  resetPreferences: () => {},
+  setPreference: () => { },
+  resetPreferences: () => { },
 })
 
 const readStoredPreferences = () => {
@@ -56,7 +56,9 @@ export const PreferencesProvider = ({ children }) => {
     const html = document.documentElement
     const body = document.body
 
-    html.style.setProperty('--app-font-scale', String(preferences.fontScale))
+    /* Font scale: Tailwind uses rem → must scale <html> font-size.
+       Default browser = 16px, so 1.1 → 17.6px, 1.2 → 19.2px */
+    html.style.fontSize = `${16 * preferences.fontScale}px`
     body.dataset.readingMode = preferences.readingMode
 
     body.classList.toggle('theme-dimmer', preferences.theme === 'dimmer')

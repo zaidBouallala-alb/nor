@@ -3,7 +3,6 @@
 
 /* ---------- Base typography & RTL ---------- */
 :root {
-  --app-font-scale: 1;
   font-family: 'Tajawal', 'Cairo', 'Noto Naskh Arabic', 'Segoe UI', system-ui, sans-serif;
   line-height: 1.75;
   font-weight: 400;
@@ -24,10 +23,43 @@ html {
   box-sizing: border-box;
 }
 
+/* ---------- Smart cursors (hasab use-case) ---------- */
+a,
+button,
+summary,
+select,
+label[for],
+[role='button'],
+[role='tab'],
+[role='switch'],
+[role='link'],
+[type='checkbox'],
+[type='radio'],
+[type='submit'],
+[type='reset'] {
+  cursor: pointer;
+}
+
+input[type='text'],
+input[type='search'],
+input[type='email'],
+input[type='url'],
+input[type='number'],
+input[type='tel'],
+input[type='password'],
+textarea {
+  cursor: text;
+}
+
+[disabled],
+[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 body {
   margin: 0;
   min-width: 320px;
-  font-size: calc(16px * var(--app-font-scale));
   overflow-x: hidden;
   background:
     radial-gradient(1200px 600px at 80% 10%, rgba(37, 52, 104, 0.28), transparent 60%),
@@ -116,6 +148,7 @@ textarea {
     opacity: 0;
     transform: translateY(-2px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
