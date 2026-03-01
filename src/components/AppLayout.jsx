@@ -136,7 +136,7 @@ const AppLayout = () => {
         <Topbar onMenuToggle={toggleDrawer} />
         <OfflineBanner />
 
-        <main id="main-content" tabIndex={-1} className="py-5 sm:py-6">
+        <main id="main-content" role="main" tabIndex={-1} className="py-5 sm:py-6">
           <AppContainer>
             <Outlet />
           </AppContainer>

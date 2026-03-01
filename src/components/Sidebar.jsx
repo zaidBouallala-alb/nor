@@ -83,10 +83,10 @@ const Sidebar = ({ onNavigate, collapsed = false, onToggleCollapse }) => {
       aria-label="القائمة الرئيسية"
     >
       {/* ── Nav links ── */}
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         {!collapsed && (
-          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-textMuted">
-            التنقل
+          <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-textMuted/70">
+            القائمة الرئيسية
           </p>
         )}
 
@@ -100,45 +100,53 @@ const Sidebar = ({ onNavigate, collapsed = false, onToggleCollapse }) => {
             className={({ isActive }) =>
               [
                 // Base
-                'group relative flex items-center rounded-xl text-sm font-medium',
-                'transition-all duration-200 ease-out',
+                'group relative flex items-center text-sm font-bold',
+                'transition-all duration-300 ease-out overflow-hidden',
                 // Focus ring
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                // Sizing: collapsed = centered icon, expanded = icon + label
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500',
+                // Sizing: collapsed = square, expanded = full width rectangle
                 collapsed
-                  ? 'justify-center px-0 py-2.5'
-                  : 'gap-3 px-3 py-2.5',
+                  ? 'w-12 h-12 mx-auto justify-center rounded-2xl p-0'
+                  : 'gap-3.5 px-4 py-3.5 w-full rounded-2xl',
                 // Active vs inactive
                 isActive
-                  ? 'bg-gold-500/10 text-gold-300 shadow-glow-gold'
-                  : 'text-textMuted hover:bg-gold-500/5 hover:text-slate-100',
+                  ? 'bg-gold-500/15 text-gold-300'
+                  : 'text-textMuted hover:bg-white/5 hover:text-slate-100',
               ].join(' ')
             }
           >
             {({ isActive }) => (
               <>
-                {/* Gold indicator bar on the end edge (right in LTR, left in RTL → border-e) */}
+                {/* Active Indicator & Glow */}
                 {isActive && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-y-1 end-0 w-[3px] rounded-full bg-gold-500"
-                  />
+                  <>
+                    {!collapsed && <div className="absolute inset-0 bg-gradient-to-l from-gold-500/0 to-gold-500/5 opacity-50" />}
+                    <span
+                      aria-hidden="true"
+                      className={[
+                        'absolute bg-gold-400 shadow-[0_0_12px_rgba(215,169,62,0.8)]',
+                        collapsed
+                          ? 'bottom-0 left-1/2 h-1 w-6 -translate-x-1/2 rounded-t-full' // bottom curved dot for collapsed
+                          : 'inset-y-2 end-0 w-1.5 rounded-s-full'   // edge vertical line for expanded
+                      ].join(' ')}
+                    />
+                  </>
                 )}
 
                 <span
                   aria-hidden="true"
                   className={[
-                    'shrink-0 transition-colors duration-200',
+                    'relative z-10 shrink-0 transition-all duration-300',
                     isActive
-                      ? 'text-gold-400 drop-shadow-[0_0_6px_rgba(215,169,62,0.35)]'
-                      : 'text-textMuted group-hover:text-slate-200',
+                      ? 'scale-110 text-gold-400 drop-shadow-[0_2px_8px_rgba(215,169,62,0.4)]'
+                      : 'text-textMuted/80 group-hover:scale-105 group-hover:text-slate-200',
                   ].join(' ')}
                 >
                   {item.icon}
                 </span>
 
                 {!collapsed && (
-                  <span className="truncate">{item.label}</span>
+                  <span className="relative z-10 truncate">{item.label}</span>
                 )}
               </>
             )}
