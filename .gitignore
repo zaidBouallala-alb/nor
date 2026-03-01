@@ -7,11 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.vite
-coverage
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+.vite/
+coverage/
 *.local
 
 # Env files
@@ -22,18 +25,35 @@ coverage
 # Cache / temp
 *.tmp
 *.temp
-tmpclaude-*-cwd
+.cache/
+.turbo/
 
-# OS
+# OS files
 Thumbs.db
+.DS_Store
+Desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
+
+# PWA generated
+sw-precache-config.js
+
+# Debug
+*.map
+
+# Package lock (uncomment if using yarn/pnpm)
+# package-lock.json
