@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppLayout from './components/AppLayout'
+import LocationPopup from './components/LocationPopup'
 
 /* ── Lazy-loaded pages (each becomes its own chunk) ──────── */
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -21,21 +22,24 @@ const PageSpinner = () => (
 
 function App() {
   return (
-    <Suspense fallback={<PageSpinner />}>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/qibla" element={<QiblaPage />} />
-          <Route path="/prayer-times" element={<PrayerTimesPage />} />
-          <Route path="/tasbih" element={<TasbihPage />} />
-          <Route path="/athkar" element={<AthkarPage />} />
-          <Route path="/quran" element={<QuranPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/surah/:number" element={<SurahPage />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+    <>
+      <LocationPopup />
+      <Suspense fallback={<PageSpinner />}>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/qibla" element={<QiblaPage />} />
+            <Route path="/prayer-times" element={<PrayerTimesPage />} />
+            <Route path="/tasbih" element={<TasbihPage />} />
+            <Route path="/athkar" element={<AthkarPage />} />
+            <Route path="/quran" element={<QuranPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/surah/:number" element={<SurahPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </>
   )
 }
 
