@@ -8,10 +8,12 @@ import {
   getCachedSurahCount,
   downloadAllSurahs,
 } from '../utils/quranApi'
+import useDocTitle from '../hooks/useDocTitle'
 
 const arabicNumber = new Intl.NumberFormat('ar')
 
 const QuranPage = () => {
+  useDocTitle('القرآن الكريم')
   const [surahs, setSurahs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -44,7 +46,7 @@ const QuranPage = () => {
 
   // ── Count locally-cached surahs on mount ───────────────────
   useEffect(() => {
-    setCachedCount(getCachedSurahCount())
+    getCachedSurahCount().then((count) => setCachedCount(count))
   }, [])
 
   // ── Download all surahs for offline ────────────────────────
@@ -73,17 +75,17 @@ const QuranPage = () => {
     } finally {
       setDownloading(false)
       setDlProgress(null)
-      setCachedCount(getCachedSurahCount())
+      getCachedSurahCount().then((count) => setCachedCount(count))
     }
   }, [downloading, cachedCount])
 
   // ── Filter by search ───────────────────────────────────────
   const filtered = search.trim()
     ? surahs.filter(
-        (s) =>
-          s.nameArabic.includes(search.trim()) ||
-          String(s.number) === search.trim(),
-      )
+      (s) =>
+        s.nameArabic.includes(search.trim()) ||
+        String(s.number) === search.trim(),
+    )
     : surahs
 
   return (

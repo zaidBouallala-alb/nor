@@ -8,6 +8,7 @@ import AppCard from '../components/AppCard'
 import useAudioPlayer from '../hooks/useAudioPlayer'
 import useLastRead from '../hooks/useLastRead'
 import { fetchSurahByNumber } from '../utils/quranApi'
+import useDocTitle from '../hooks/useDocTitle'
 
 const arabicNum = new Intl.NumberFormat('ar')
 
@@ -33,6 +34,7 @@ const SurahPage = () => {
   const surahNumber = Number(number)
 
   const [surah, setSurah] = useState(null)
+  useDocTitle(surah ? `سورة ${surah.nameArabic}` : 'القرآن الكريم')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)

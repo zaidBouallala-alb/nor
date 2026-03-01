@@ -4,6 +4,8 @@ import AppCard from '../components/AppCard'
 import AppSectionTitle from '../components/AppSectionTitle'
 import { calculateQiblaDirection } from '../utils/qiblaUtils'
 import { reverseGeocode } from '../utils/prayerTimesApi'
+import { useLocation } from '../context/LocationContext'
+import useDocTitle from '../hooks/useDocTitle'
 
 /* ── Kaaba coordinates ── */
 const KAABA_LAT = 21.4225
@@ -160,51 +162,68 @@ const Compass = ({ qiblaAngle, deviceHeading, size = 280 }) => {
    QiblaPage
    ═══════════════════════════════════════════ */
 const QiblaPage = () => {
-  const [latitude, setLatitude] = useState('30.0444')
-  const [longitude, setLongitude] = useState('31.2357')
+  useDocTitle('اتجاه القبلة')
+  const { location: globalLocation } = useLocation()
+
+  const [latitude, setLatitude] = useState(() =>
+    globalLocation?.latitude ? String(globalLocation.latitude.toFixed(4)) : '30.0444'
+  )
+  const [longitude, setLongitude] = useState(() =>
+    globalLocation?.longitude ? String(globalLocation.longitude.toFixed(4)) : '31.2357'
+  )
   const [statusText, setStatusText] = useState('')
-  const [locationName, setLocationName] = useState('القاهرة، مصر')
+  const [locationName, setLocationName] = useState(() =>
+    globalLocation?.label || 'القاهرة، مصر'
+  )
   const [deviceHeading, setDeviceHeading] = useState(null)
   const [compassSupported, setCompassSupported] = useState(false)
-  const watchRef = useRef(null)
+  const [needsPermission, setNeedsPermission] = useState(false)
+  const listenersAttached = useRef(false)
+  const headingRef = useRef(null)
+  const compassSupportedRef = useRef(false)
 
-  const getHeadingFromEvent = useCallback((event) => {
+  /* ── Stable orientation handler (uses refs to avoid re-attachment) ── */
+  const handleOrientation = useCallback((event) => {
+    let heading = null
+
+    // iOS Safari: webkitCompassHeading gives true north heading directly
     if (typeof event?.webkitCompassHeading === 'number') {
-      return event.webkitCompassHeading
+      heading = event.webkitCompassHeading
+    }
+    // Android / other: compute from alpha
+    else if (typeof event?.alpha === 'number') {
+      const screenAngle =
+        window.screen?.orientation?.angle
+        ?? (typeof window.orientation === 'number' ? window.orientation : 0)
+
+      heading = (360 - event.alpha + screenAngle) % 360
+      if (heading < 0) heading += 360
     }
 
-    if (typeof event?.alpha !== 'number') {
-      return null
-    }
-
-    const screenAngle =
-      window.screen?.orientation?.angle
-      ?? (typeof window.orientation === 'number' ? window.orientation : 0)
-
-    let heading = 360 - event.alpha
-    heading = (heading + screenAngle) % 360
-    if (heading < 0) heading += 360
-
-    return heading
-  }, [])
-
-  const orientationHandler = useCallback((event) => {
-    const heading = getHeadingFromEvent(event)
     if (heading === null) return
 
+    headingRef.current = heading
+    if (!compassSupportedRef.current) {
+      compassSupportedRef.current = true
+      setCompassSupported(true)
+    }
     setDeviceHeading(heading)
-    setCompassSupported(true)
-  }, [getHeadingFromEvent])
+  }, [])
 
-  const attachOrientationListeners = useCallback(() => {
-    window.addEventListener('deviceorientationabsolute', orientationHandler, true)
-    window.addEventListener('deviceorientation', orientationHandler, true)
-  }, [orientationHandler])
+  const attachListeners = useCallback(() => {
+    if (listenersAttached.current) return
+    listenersAttached.current = true
+    // prefer absolute orientation (true north) when available
+    window.addEventListener('deviceorientationabsolute', handleOrientation, true)
+    window.addEventListener('deviceorientation', handleOrientation, true)
+  }, [handleOrientation])
 
-  const detachOrientationListeners = useCallback(() => {
-    window.removeEventListener('deviceorientationabsolute', orientationHandler, true)
-    window.removeEventListener('deviceorientation', orientationHandler, true)
-  }, [orientationHandler])
+  const detachListeners = useCallback(() => {
+    if (!listenersAttached.current) return
+    listenersAttached.current = false
+    window.removeEventListener('deviceorientationabsolute', handleOrientation, true)
+    window.removeEventListener('deviceorientation', handleOrientation, true)
+  }, [handleOrientation])
 
   const latNum = Number(latitude)
   const lonNum = Number(longitude)
@@ -222,36 +241,68 @@ const QiblaPage = () => {
 
   /* ── Device compass (magnetometer) ── */
   useEffect(() => {
-    if (typeof DeviceOrientationEvent !== 'undefined') {
-      // iOS 13+ requires permission
-      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        // will be requested on button tap
-      } else {
-        attachOrientationListeners()
-      }
-    } else {
+    if (typeof DeviceOrientationEvent === 'undefined') {
       setStatusText('جهازك لا يدعم البوصلة الرقمية. يمكنك الاعتماد على زاوية القبلة بالأرقام.')
+      return
     }
 
-    return () => detachOrientationListeners()
-  }, [attachOrientationListeners, detachOrientationListeners])
+    // iOS 13+ requires explicit user-gesture permission
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      setNeedsPermission(true)
+      return
+    }
+
+    // Android & others: attach listeners directly
+    attachListeners()
+
+    // Give the sensor 2 seconds, then check if we got any data
+    const checkTimer = setTimeout(() => {
+      if (!compassSupportedRef.current) {
+        // Some Android browsers need a user gesture too
+        setNeedsPermission(true)
+        setStatusText('اضغط "تفعيل البوصلة" لتشغيل المستشعر.')
+      }
+    }, 2000)
+
+    return () => {
+      clearTimeout(checkTimer)
+      detachListeners()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const requestCompass = useCallback(async () => {
-    if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
-      try {
+    try {
+      // iOS: request permission explicitly
+      if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
         setStatusText('جارٍ طلب إذن البوصلة...')
         const perm = await DeviceOrientationEvent.requestPermission()
         if (perm === 'granted') {
-          attachOrientationListeners()
+          attachListeners()
+          setNeedsPermission(false)
           setStatusText('تم تفعيل البوصلة الرقمية بنجاح.')
         } else {
           setStatusText('تم رفض إذن البوصلة. فعّل الإذن من إعدادات المتصفح.')
         }
-      } catch {
-        setStatusText('تعذر تفعيل البوصلة. تأكد من السماح بإذن الحركة والاتجاه.')
+      } else {
+        // Android: re-attach listeners on user gesture (some browsers need this)
+        detachListeners()
+        attachListeners()
+        setNeedsPermission(false)
+        setStatusText('جارٍ تفعيل البوصلة...')
+        // Check again after 2 seconds
+        setTimeout(() => {
+          if (!compassSupportedRef.current) {
+            setStatusText('جهازك لا يدعم البوصلة الرقمية. يمكنك الاعتماد على زاوية القبلة بالأرقام.')
+          } else {
+            setStatusText('تم تفعيل البوصلة الرقمية بنجاح.')
+          }
+        }, 2000)
       }
+    } catch {
+      setStatusText('تعذر تفعيل البوصلة. تأكد من السماح بإذن الحركة والاتجاه.')
     }
-  }, [attachOrientationListeners])
+  }, [attachListeners, detachListeners])
 
   /* ── Geolocation ── */
   const handleUseMyLocation = useCallback(async () => {
@@ -282,6 +333,15 @@ const QiblaPage = () => {
       { enableHighAccuracy: true, timeout: 10000 },
     )
   }, [])
+
+  /* ── Sync with global location when it changes ── */
+  useEffect(() => {
+    if (globalLocation?.mode === 'gps' && globalLocation.latitude && globalLocation.longitude) {
+      setLatitude(String(globalLocation.latitude.toFixed(4)))
+      setLongitude(String(globalLocation.longitude.toFixed(4)))
+      if (globalLocation.label) setLocationName(globalLocation.label)
+    }
+  }, [globalLocation])
 
   const directionStr = direction !== null ? direction.toFixed(2) : '--'
   const distStr = distanceKm !== null ? Math.round(distanceKm).toLocaleString('ar-EG') : '--'
@@ -347,12 +407,15 @@ const QiblaPage = () => {
               </svg>
               تحديد موقعي
             </button>
-            {!compassSupported && typeof DeviceOrientationEvent?.requestPermission === 'function' && (
+            {!compassSupported && needsPermission && (
               <button
                 type="button"
                 onClick={requestCompass}
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface-soft px-5 py-2.5 text-sm font-medium text-textMuted transition hover:text-slate-100"
+                className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-5 py-2.5 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500/20 animate-pulse"
               >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
                 تفعيل البوصلة
               </button>
             )}
@@ -389,8 +452,10 @@ const QiblaPage = () => {
           <p className="mt-1 text-xl font-bold text-slate-100">
             {compassSupported ? (
               <span className="text-emerald-400">مفعّلة</span>
+            ) : typeof DeviceOrientationEvent === 'undefined' ? (
+              <span className="text-textMuted">غير مدعومة</span>
             ) : (
-              <span className="text-textMuted">غير متاحة</span>
+              <span className="text-amber-400">في الانتظار...</span>
             )}
           </p>
         </AppCard>

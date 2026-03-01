@@ -3,6 +3,7 @@ import AppBadge from '../components/AppBadge'
 import AppCard from '../components/AppCard'
 import AppSectionTitle from '../components/AppSectionTitle'
 import athkarData from '../data/athkarData.json'
+import useDocTitle from '../hooks/useDocTitle'
 
 const STORAGE_KEY = 'athkar-progress-v2'
 
@@ -144,6 +145,7 @@ const DhikrEntry = ({ entry, done, onCount }) => {
    AthkarPage
    ═══════════════════════════════════════════ */
 const AthkarPage = () => {
+  useDocTitle('الأذكار')
   const categories = athkarData.categories
   const [openId, setOpenId] = useState(null)
   const [progress, setProgress] = useState(() => loadProgress())

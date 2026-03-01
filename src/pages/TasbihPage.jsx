@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AppBadge from '../components/AppBadge'
 import AppCard from '../components/AppCard'
 import AppSectionTitle from '../components/AppSectionTitle'
+import useDocTitle from '../hooks/useDocTitle'
 
 /* ─── preset dhikr list ─── */
 const PRESETS = [
@@ -81,6 +82,7 @@ const Ring = ({ progress, size = 220, stroke = 8 }) => {
    TasbihPage
    ════════════════════════════════════════════ */
 const TasbihPage = () => {
+  useDocTitle('عداد التسبيح')
   const saved = useMemo(() => loadState(), [])
 
   const [activeId, setActiveId] = useState(saved?.activeId ?? PRESETS[0].id)
@@ -172,11 +174,10 @@ const TasbihPage = () => {
             key={p.id}
             type="button"
             onClick={() => setActiveId(p.id)}
-            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
-              activeId === p.id
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${activeId === p.id
                 ? 'bg-gold-500 text-background shadow-md'
                 : 'bg-surface-soft text-textMuted hover:bg-surface hover:text-slate-100'
-            }`}
+              }`}
           >
             {p.id === 'custom' ? 'مخصص' : p.label}
           </button>
@@ -222,11 +223,10 @@ const TasbihPage = () => {
             ref={btnRef}
             type="button"
             onClick={increment}
-            className={`relative z-10 flex h-44 w-44 flex-col items-center justify-center rounded-full border-2 transition-all duration-150 active:scale-95 ${
-              isComplete
+            className={`relative z-10 flex h-44 w-44 flex-col items-center justify-center rounded-full border-2 transition-all duration-150 active:scale-95 ${isComplete
                 ? 'border-emerald-500/50 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.15)]'
                 : 'border-gold-500/40 bg-gold-500/5 hover:bg-gold-500/10 shadow-[0_0_30px_rgba(202,138,4,0.1)]'
-            }`}
+              }`}
             aria-label="اضغط للتسبيح"
           >
             <output
@@ -268,11 +268,10 @@ const TasbihPage = () => {
           <button
             type="button"
             onClick={() => setVibrate((v) => !v)}
-            className={`flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
-              vibrate
+            className={`flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${vibrate
                 ? 'border-gold-500/40 bg-gold-500/10 text-gold-300'
                 : 'border-border bg-surface-soft text-textMuted hover:text-slate-100'
-            }`}
+              }`}
             aria-label="تبديل الاهتزاز"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -337,9 +336,8 @@ const TasbihPage = () => {
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-surface-soft">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      pct >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-l from-gold-400 to-gold-600'
-                    }`}
+                    className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-l from-gold-400 to-gold-600'
+                      }`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
